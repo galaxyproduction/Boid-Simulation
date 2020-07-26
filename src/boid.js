@@ -1,7 +1,7 @@
 // Boids Algorithm
 // Hunter Wilkins
 // https://hunterwilkins.dev
-// https://github.com/galaxyproduction
+// https://github.com/galaxyproduction/Boid-Simulation
 
 class Boid {
     constructor() {
