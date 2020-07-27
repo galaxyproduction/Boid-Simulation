@@ -9,11 +9,11 @@ class Boid {
         this.velocity = p5.Vector.random2D(); // Random initial velocity vector
         this.velocity.setMag(random(2, 4));
         this.acceleration = createVector();
-        this.perceptionRadius = 20; // How far this boid can see its neighbors around it
-        this.maxSpeed = 4;
+        this.perceptionRadius = 100; // How far this boid can see its neighbors around it
+        this.maxSpeed = 5;
         this.maxForce = 1;
 
-        this.size = 4; // Size to draw the boids
+        this.size = 8; // Size to draw the boids
         this.color = color(random(0, 255), 100, 50); // Random hsl color
     }
 
@@ -34,17 +34,17 @@ class Boid {
 
     // Runs the flocking algorithm
     flock(weights, boids) {
-        // Gets its neighbors within the perceptaion radius
         let neighbors = [];
-        for (let b of boids) {
-            if (b != this && this.position.dist(b.position) <= this.perceptionRadius)
+        for(let b of boids) {
+            if(b != this && this.position.dist(b.position) < this.perceptionRadius){
                 neighbors.push(b);
+            }
         }
 
-        if (neighbors.length != 0) {
-            let separation = this.separation(neighbors);
-            let alignment = this.alignment(neighbors);
-            let cohesion = this.cohesion(neighbors);
+        if(boids.length > 0) {
+            let separation = this.separation(boids);
+            let alignment = this.alignment(boids);
+            let cohesion = this.cohesion(boids);
 
             separation.mult(weights[0]);
             alignment.mult(weights[1]);
@@ -54,6 +54,8 @@ class Boid {
             this.acceleration.add(alignment);
             this.acceleration.add(cohesion);
         }
+
+        this.acceleration.add(p5.Vector.random2D());
     }
 
     // Moves the boid and resets the acceleration back to 0
@@ -64,14 +66,16 @@ class Boid {
         this.acceleration.mult(0);
     }
 
-    // Steers away to awoid the average position of the boids around it
+    // Steers away to avoid the average position of the boids around it
     separation(neighbors) {
         let steering = createVector();
         for (let other of neighbors) {
-            let diff = p5.Vector.sub(this.position, other.position);
-            let d = this.position.dist(other.position);
-            diff.div(d * d);
-            steering.add(diff);
+            //if (other != this) {
+                let diff = p5.Vector.sub(this.position, other.position);
+                let d = this.position.dist(other.position);
+                diff.div(d == 0 ? 0.00001 : d * d);
+                steering.add(diff);
+            //}
         }
 
         steering.div(neighbors.length);
@@ -86,7 +90,9 @@ class Boid {
     alignment(neighbors) {
         let avgVelocity = createVector();
         for (let other of neighbors) {
-            avgVelocity.add(other.velocity);
+            //if (other != this) {
+                avgVelocity.add(other.velocity);
+            //}
         }
 
         avgVelocity.div(neighbors.length);
@@ -101,7 +107,9 @@ class Boid {
     cohesion(neighbors) {
         let avgPosition = createVector();
         for (let other of neighbors) {
-            avgPosition.add(other.position);
+            //if (other != this) {
+                avgPosition.add(other.position);
+            //}
         }
 
         avgPosition.div(neighbors.length);
